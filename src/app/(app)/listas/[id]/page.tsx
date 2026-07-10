@@ -1,8 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireHousehold } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { LIST_STATUS_LABELS } from "@/lib/lists";
+import { formatBRL } from "@/lib/units";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { AddItemCombobox } from "@/components/lists/add-item-combobox";
 import { ShoppingListItemRow } from "@/components/lists/shopping-list-item-row";
 import { ListStatusControls } from "@/components/lists/list-status-controls";
@@ -23,6 +26,7 @@ export default async function ListaDetalhePage({
         include: { product: true },
         orderBy: { product: { name: "asc" } },
       },
+      purchase: true, // existe quando a lista já foi fechada
     },
   });
   if (!list) notFound();
@@ -99,9 +103,30 @@ export default async function ListaDetalhePage({
         </div>
       )}
 
-      <p className="text-sm text-muted-foreground">
-        Concluir a lista para gerar a compra (com preços) chega na Fase 3.
-      </p>
+      {list.status === "COMPLETED" && list.purchase ? (
+        <div className="rounded-md border bg-muted/40 p-4">
+          <p className="text-sm text-muted-foreground">Compra registrada</p>
+          <p className="text-lg font-semibold">
+            {formatBRL(list.purchase.total.toNumber())}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {list.purchase.date.toLocaleDateString("pt-BR")}
+            {list.purchase.establishment
+              ? ` · ${list.purchase.establishment}`
+              : ""}
+          </p>
+        </div>
+      ) : !readOnly && list.items.length > 0 ? (
+        <div>
+          <Link href={`/listas/${list.id}/fechar`}>
+            <Button>Concluir compra</Button>
+          </Link>
+          <p className="mt-2 text-xs text-muted-foreground">
+            No fechamento você informa o preço e a quantidade realmente comprada
+            de cada item marcado como pego.
+          </p>
+        </div>
+      ) : null}
     </div>
   );
 }

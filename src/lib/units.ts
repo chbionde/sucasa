@@ -26,3 +26,14 @@ export const BASE_UNIT_SHORT: Record<BaseUnit, string> = {
   ML: "ml",
   UN: "un",
 };
+
+const brl = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+});
+
+// Formata um valor monetário em reais. Recebe number (Decimal deve virar
+// number com .toNumber() antes — só para exibição).
+export function formatBRL(value: number): string {
+  return brl.format(value);
+}
