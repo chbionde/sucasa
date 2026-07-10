@@ -1,0 +1,62 @@
+# Ambiente de DESENVOLVIMENTO.
+#
+# Dois modos de uso:
+#
+#   (A) Híbrido (recomendado no Windows — HMR mais rápido, sem mismatch de
+#       binários nativos): sobe só o Postgres em container e roda o app no host.
+#         docker compose up -d db
+#         npm run dev
+#
+#   (B) Full Docker (mais fiel ao que roda na VPS): sobe app + banco juntos.
+#         docker compose up
+#       A primeira subida é lenta (npm install dentro do container).
+#
+# Em ambos, o Postgres fica exposto em localhost:5432 para o Prisma CLI do host.
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: sucasa_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sucasa
+      POSTGRES_PASSWORD: sucasa
+      POSTGRES_DB: sucasa
+    ports:
+      - "5432:5432"
+    volumes:
+      - sucasa_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      # depends_on abaixo espera este healthcheck ficar verde antes de subir o app.
+      test: ["CMD-SHELL", "pg_isready -U sucasa -d sucasa"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: node:22-alpine
+    container_name: sucasa_app
+    working_dir: /app
+    # Instala deps (na named volume), aplica migrations e sobe o dev server.
+    command: sh -c "npm install && npx prisma migrate deploy && npm run dev -- -H 0.0.0.0 -p 3000"
+    env_file:
+      - .env
+    environment:
+      # Sobrescreve o DATABASE_URL do .env: dentro do Compose o banco é 'db', não localhost.
+      DATABASE_URL: "postgresql://sucasa:sucasa@db:5432/sucasa?schema=public"
+      # Habilita polling do file-watcher: HMR funciona com bind mount no Windows/Docker.
+      WATCHPACK_POLLING: "true"
+    ports:
+      - "3000:3000"
+    volumes:
+      # Bind mount do código para hot reload...
+      - .:/app
+      # ...mas node_modules fica numa named volume (Linux do container, não Windows do host).
+      - sucasa_node_modules:/app/node_modules
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  sucasa_pgdata:
+  sucasa_node_modules:
