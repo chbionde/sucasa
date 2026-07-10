@@ -37,12 +37,18 @@ export default async function AppLayout({
               Listas
             </Link>
             <Link
+              href="/historico"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Histórico
+            </Link>
+            <Link
               href="/config"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
               Configurações
             </Link>
-            {/* A navegação cresce nas próximas fases: Histórico, Gráficos, Previsão. */}
+            {/* A navegação cresce nas próximas fases: Gráficos, Previsão. */}
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-muted-foreground sm:inline">

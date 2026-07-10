@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireHousehold } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
 import { formatQuantity, BASE_UNIT_SHORT } from "@/lib/units";
@@ -51,7 +52,14 @@ export default async function ProdutosPage() {
             <TableBody>
               {products.map((p) => (
                 <TableRow key={p.id}>
-                  <TableCell className="font-medium">{p.name}</TableCell>
+                  <TableCell className="font-medium">
+                    <Link
+                      href={`/produtos/${p.id}`}
+                      className="underline-offset-4 hover:underline"
+                    >
+                      {p.name}
+                    </Link>
+                  </TableCell>
                   <TableCell>{p.category}</TableCell>
                   <TableCell>{BASE_UNIT_SHORT[p.baseUnit]}</TableCell>
                   <TableCell>{formatQuantity(p.packageSize, p.baseUnit)}</TableCell>

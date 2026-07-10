@@ -37,3 +37,12 @@ const brl = new Intl.NumberFormat("pt-BR", {
 export function formatBRL(value: number): string {
   return brl.format(value);
 }
+
+// pricePerBaseUnit é R$ por unidade-base (R$/g, R$/ml, R$/un) — número minúsculo.
+// Para exibição, escalamos para a unidade "grande": R$/kg, R$/L, R$/un.
+// É o número comparável entre marcas ao longo do tempo.
+export function formatPricePerBaseUnit(value: number, unit: BaseUnit): string {
+  if (unit === "G") return `${formatBRL(value * 1000)}/kg`;
+  if (unit === "ML") return `${formatBRL(value * 1000)}/L`;
+  return `${formatBRL(value)}/un`;
+}
