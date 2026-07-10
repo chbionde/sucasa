@@ -25,13 +25,24 @@ export default async function AppLayout({
               sucasa
             </Link>
             <Link
+              href="/produtos"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Produtos
+            </Link>
+            <Link
+              href="/listas"
+              className="text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Listas
+            </Link>
+            <Link
               href="/config"
               className="text-muted-foreground transition-colors hover:text-foreground"
             >
               Configurações
             </Link>
-            {/* A navegação cresce nas próximas fases: Produtos, Listas,
-                Histórico, Gráficos, Previsão. */}
+            {/* A navegação cresce nas próximas fases: Histórico, Gráficos, Previsão. */}
           </nav>
           <div className="flex items-center gap-3 text-sm">
             <span className="hidden text-muted-foreground sm:inline">
